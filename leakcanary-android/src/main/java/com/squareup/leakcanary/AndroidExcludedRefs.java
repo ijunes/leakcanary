@@ -24,13 +24,14 @@ import static android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH;
 import static android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1;
 import static android.os.Build.VERSION_CODES.JELLY_BEAN;
 import static android.os.Build.VERSION_CODES.KITKAT;
-import static android.os.Build.VERSION_CODES.LOLLIPOP;
+
 import static com.squareup.leakcanary.AndroidWatchExecutor.LEAK_CANARY_THREAD_NAME;
 import static com.squareup.leakcanary.internal.LeakCanaryInternals.LG;
 import static com.squareup.leakcanary.internal.LeakCanaryInternals.LOLLIPOP_MR1;
 import static com.squareup.leakcanary.internal.LeakCanaryInternals.MOTOROLA;
 import static com.squareup.leakcanary.internal.LeakCanaryInternals.NVIDIA;
 import static com.squareup.leakcanary.internal.LeakCanaryInternals.SAMSUNG;
+
 
 /**
  * This class is a work in progress. You can help by reporting leak traces that seem to be caused
@@ -46,7 +47,7 @@ import static com.squareup.leakcanary.internal.LeakCanaryInternals.SAMSUNG;
  */
 public enum AndroidExcludedRefs {
 
-  ACTIVITY_CLIENT_RECORD__NEXT_IDLE(SDK_INT >= KITKAT && SDK_INT <= LOLLIPOP) {
+  ACTIVITY_CLIENT_RECORD__NEXT_IDLE(SDK_INT >= KITKAT && SDK_INT <= 21) {
     @Override void add(ExcludedRefs.Builder excluded) {
       // Android AOSP sometimes keeps a reference to a destroyed activity as a "nextIdle" client
       // record in the android.app.ActivityThread.mActivities map.
@@ -75,7 +76,7 @@ public enum AndroidExcludedRefs {
     }
   },
 
-  MEDIA_SESSION_LEGACY_HELPER__SINSTANCE(SDK_INT == LOLLIPOP) {
+  MEDIA_SESSION_LEGACY_HELPER__SINSTANCE(SDK_INT == 21) {
     @Override void add(ExcludedRefs.Builder excluded) {
       // MediaSessionLegacyHelper is a static singleton that is lazily instantiated and keeps a
       // reference to the context it's given the first time MediaSessionLegacyHelper.getHelper()
@@ -109,7 +110,7 @@ public enum AndroidExcludedRefs {
     }
   },
 
-  BLOCKING_QUEUE(SDK_INT < LOLLIPOP) {
+  BLOCKING_QUEUE(SDK_INT < 21) {
     @Override void add(ExcludedRefs.Builder excluded) {
       // Prior to ART, a thread waiting on a blocking queue will leak the last dequeued object
       // as a stack local reference.
@@ -187,7 +188,7 @@ public enum AndroidExcludedRefs {
     }
   },
 
-  SPEECH_RECOGNIZER(SDK_INT < LOLLIPOP) {
+  SPEECH_RECOGNIZER(SDK_INT < 21) {
     @Override void add(ExcludedRefs.Builder excluded) {
       // Prior to Android 5, SpeechRecognizer.InternalListener was a non static inner class and
       // leaked the SpeechRecognizer which leaked an activity context.
@@ -256,7 +257,7 @@ public enum AndroidExcludedRefs {
   },
 
   CLIPBOARD_UI_MANAGER__SINSTANCE(
-      SAMSUNG.equals(MANUFACTURER) && SDK_INT >= KITKAT && SDK_INT <= LOLLIPOP) {
+      SAMSUNG.equals(MANUFACTURER) && SDK_INT >= KITKAT && SDK_INT <= 21) {
     @Override void add(ExcludedRefs.Builder excluded) {
       // ClipboardUIManager is a static singleton that leaks an activity context.
       excluded.staticField("android.sec.clipboard.ClipboardUIManager", "sInstance");
@@ -264,7 +265,7 @@ public enum AndroidExcludedRefs {
   },
 
   BUBBLE_POPUP_HELPER__SHELPER(
-      LG.equals(MANUFACTURER) && SDK_INT >= KITKAT && SDK_INT <= LOLLIPOP) {
+      LG.equals(MANUFACTURER) && SDK_INT >= KITKAT && SDK_INT <= 21) {
     @Override void add(ExcludedRefs.Builder excluded) {
       // A static helper for EditText "bubble popups" leaks a reference to the latest focused view.
       excluded.staticField("android.widget.BubblePopupHelper", "sHelper");
